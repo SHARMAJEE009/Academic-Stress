@@ -19,7 +19,7 @@ h1{font-size:1.45rem;margin:0 0 4px}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
 .kpi b{display:block;font-size:1.6rem}
 .kpi span{color:var(--mu);font-size:.8rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;margin-bottom:14px}
 h2{font-size:.98rem;margin:0 0 2px}
 .note{color:var(--mu);font-size:.78rem;margin:0 0 10px}
 .cv{position:relative;height:290px}
@@ -32,6 +32,33 @@ th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd)}
 th{color:var(--mu);font-weight:600}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
 footer{color:var(--mu);font-size:.75rem;margin-top:14px}
+.card{min-width:0}
+.cv{min-width:0}
+.tabs{min-width:0}
+.tw{-webkit-overflow-scrolling:touch}
+@media(max-width:600px){
+ main{padding:16px 12px 28px}
+ h1{font-size:clamp(1.2rem,5vw,1.45rem);line-height:1.3}
+ .sub{font-size:.84rem;margin-bottom:14px}
+ .badge{margin-left:4px}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .kpi b{font-size:1.4rem}
+ .card{padding:12px}
+ .grid{grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:10px}
+ .cv{height:260px}
+ .tabs{flex-wrap:nowrap;overflow-x:auto;padding:2px 0 8px;scrollbar-width:thin}
+ .tabs button{flex:0 0 auto;min-height:40px;padding:7px 12px;white-space:nowrap}
+ table{font-size:.8rem}
+ th,td{padding:8px}
+ footer{line-height:1.5}
+}
+@media(max-width:360px){
+ main{padding-right:10px;padding-left:10px}
+ .kpis{gap:7px}
+ .kpi b{font-size:1.25rem}
+ .card{padding:10px}
+ .cv{height:240px}
+}
 </style>
 </head>
 <body>
