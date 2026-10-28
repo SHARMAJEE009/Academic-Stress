@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STM Dashboard: Academic Stress in India</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1d2433;--mu:#667085;--bd:#e4e7ee;--c1:#4f46e5;--c2:#0ea5e9;--c3:#f59e0b;--c4:#10b981;--c5:#ef4444;--c6:#8b5cf6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--card:#171e2e;--tx:#e8ecf5;--mu:#9aa4b8;--bd:#263046}}
+:root[data-theme="dark"]{--bg:#0f1420;--card:#171e2e;--tx:#e8ecf5;--mu:#9aa4b8;--bd:#263046}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+main{max-width:1150px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.45rem;margin:0 0 4px}
+.sub{color:var(--mu);font-size:.9rem;margin:0 0 18px}
+.badge{display:inline-block;font-size:.72rem;padding:2px 8px;border-radius:99px;background:var(--c1);color:#fff;margin-left:6px;vertical-align:middle}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.kpi b{display:block;font-size:1.6rem}
+.kpi span{color:var(--mu);font-size:.8rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:14px}
+h2{font-size:.98rem;margin:0 0 2px}
+.note{color:var(--mu);font-size:.78rem;margin:0 0 10px}
+.cv{position:relative;height:290px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:5px 12px;border-radius:99px;cursor:pointer;font-size:.82rem}
+.tabs button.on{background:var(--c1);color:#fff;border-color:var(--c1)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:520px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd)}
+th{color:var(--mu);font-weight:600}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+footer{color:var(--mu);font-size:.75rem;margin-top:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>Academic Stress in India: STM Dashboard <span class="badge">Dummy data</span></h1>
+<p class="sub">Structural Topic Modeling of newspaper text (2000–2025) with document metadata (year, newspaper, cohort period) · compares 1990–2000, 2000–2015 and 2015–2025</p>
+
+<div class="kpis">
+<div class="card kpi"><b>12,480</b><span>Articles in corpus</span></div>
+<div class="card kpi"><b>6</b><span>Topics (K) in STM</span></div>
+<div class="card kpi"><b>5</b><span>Newspapers</span></div>
+<div class="card kpi"><b>45</b><span>Interviews (15 per cohort)</span></div>
+<div class="card kpi"><b>2020</b><span>Peak coverage year</span></div>
+</div>
+
+<div class="grid">
+<div class="card"><h2>Topic share across the corpus</h2><p class="note">Pie chart: expected topic proportion, 2000–2025</p><div class="cv"><canvas id="pie"></canvas></div></div>
+<div class="card"><h2>Topic prevalence by educational period</h2><p class="note">Stacked bar: how themes shift between the three cohorts (%)</p><div class="cv"><canvas id="bar"></canvas></div></div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+<h2>Coverage over time (STM year covariate)</h2>
+<p class="note">Line graph: articles per year and share of the “Mental health” topic. Note the 2020 COVID-19 spike.</p>
+<div class="cv"><canvas id="line"></canvas></div>
+</div>
+
+<div class="grid">
+<div class="card"><h2>Interview themes by cohort</h2><p class="note">Radar: mean coded intensity (0–10) from interviews</p><div class="cv"><canvas id="radar"></canvas></div></div>
+<div class="card">
+<h2>Topic trend explorer</h2><p class="note">Pick a topic to see its prevalence by period</p>
+<div class="tabs" id="tabs"></div>
+<div class="cv" style="height:235px"><canvas id="one"></canvas></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Topic labels and top words</h2>
+<p class="note">Illustrative output, like labelTopics() in the R stm package</p>
+<div class="tw"><table><thead><tr><th>Topic</th><th>Top words</th><th>Overall</th><th>Peaks in</th></tr></thead><tbody id="tb"></tbody></table></div>
+</div>
+<footer>All numbers are dummy values for layout and demonstration only. Replace them with your STM output (theta, topic proportions, estimateEffect).</footer>
+</main>
+<script>
+const periods=["1990–2000","2000–2015","2015–2025"];
+const topics=[
+{n:"Exam & results pressure",c:"--c1",w:"board exam, marks, result, percentage, rank, topper",o:22,p:[34,24,15]},
+{n:"Parental expectations",c:"--c2",w:"parents, expectation, family, pressure, comparison, doctor",o:17,p:[25,20,14]},
+{n:"Coaching & entrance tests",c:"--c3",w:"coaching, JEE, NEET, Kota, entrance, cutoff",o:21,p:[7,28,17]},
+{n:"Digital & online learning",c:"--c4",w:"online, COVID, screen, app, lockdown, remote",o:12,p:[1,4,22]},
+{n:"Mental health & wellbeing",c:"--c5",w:"anxiety, depression, counselling, helpline, suicide, stress",o:19,p:[8,12,24]},
+{n:"Career & job anxiety",c:"--c6",w:"job, career, unemployment, degree, placement, future",o:9,p:[25,12,8]}];
+const css=getComputedStyle(document.documentElement);
+const col=v=>css.getPropertyValue(v).trim();
+const tx=col("--tx"),mu=col("--mu"),bd=col("--bd");
+Chart.defaults.color=mu;Chart.defaults.borderColor=bd;Chart.defaults.maintainAspectRatio=false;
+const opt={plugins:{legend:{labels:{color:tx,boxWidth:12}}}};
+const colors=topics.map(t=>col(t.c));
+
+new Chart(pie,{type:"pie",data:{labels:topics.map(t=>t.n),datasets:[{data:topics.map(t=>t.o),backgroundColor:colors,borderColor:col("--card"),borderWidth:2}]},
+options:{...opt,plugins:{legend:{position:"bottom",labels:{color:tx,boxWidth:12}},tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+"%"}}}}});
+
+new Chart(bar,{type:"bar",data:{labels:periods,datasets:topics.map((t,i)=>({label:t.n,data:t.p,backgroundColor:colors[i]}))},
+options:{...opt,scales:{x:{stacked:true},y:{stacked:true,max:100,title:{display:true,text:"% of topic mass"}}},plugins:{legend:{position:"bottom",labels:{color:tx,boxWidth:12}}}}});
+
+const yrs=[],art=[],mh=[];
+for(let y=2000;y<=2025;y++){yrs.push(y);
+ let a=180+(y-2000)*14+((y*7)%5)*12;
+ if(y==2020)a+=330;if(y==2021)a+=190;if(y==2022)a+=80;
+ art.push(a);
+ mh.push(Math.round(4+(y-2000)*0.75+(y==2020?7:0)+(y==2021?4:0)));}
+new Chart(line,{type:"line",data:{labels:yrs,datasets:[
+{label:"Articles per year",data:art,borderColor:colors[0],backgroundColor:colors[0]+"33",fill:true,tension:.3,yAxisID:"y"},
+{label:"Mental health topic share (%)",data:mh,borderColor:colors[4],tension:.3,yAxisID:"y1"}]},
+options:{...opt,scales:{y:{title:{display:true,text:"Articles"}},y1:{position:"right",grid:{drawOnChartArea:false},title:{display:true,text:"Topic share %"}}}}});
+
+const dims=["Parental pressure","Exam fear","Competition","Social comparison","Technology","Mental health talk"];
+const rd=[[8,8,5,4,1,2],[7,7,9,6,3,4],[6,5,8,9,9,8]];
+const rc=[col("--c3"),col("--c2"),col("--c5")];
+new Chart(radar,{type:"radar",data:{labels:dims,datasets:periods.map((p,i)=>({label:p,data:rd[i],borderColor:rc[i],backgroundColor:rc[i]+"33",pointBackgroundColor:rc[i]}))},
+options:{...opt,scales:{r:{min:0,max:10,ticks:{backdropColor:"transparent",color:mu},pointLabels:{color:tx}}}}});
+
+const tabs=document.getElementById("tabs");let one;
+function show(i){[...tabs.children].forEach((b,j)=>b.classList.toggle("on",i==j));
+ if(one)one.destroy();
+ one=new Chart(document.getElementById("one"),{type:"bar",data:{labels:periods,datasets:[{label:topics[i].n+" (%)",data:topics[i].p,backgroundColor:colors[i],borderRadius:6}]},
+ options:{...opt,scales:{y:{beginAtZero:true,max:40}}}});}
+topics.forEach((t,i)=>{const b=document.createElement("button");b.textContent=t.n;b.onclick=()=>show(i);tabs.appendChild(b);});
+show(0);
+
+document.getElementById("tb").innerHTML=topics.map((t,i)=>{
+ const m=t.p.indexOf(Math.max(...t.p));
+ return `<tr><td><span class="dot" style="background:${colors[i]}"></span>${t.n}</td><td>${t.w}</td><td>${t.o}%</td><td>${periods[m]}</td></tr>`}).join("");
+</script>
+</body>
+</html>
